@@ -1,0 +1,11 @@
+Final Year Project Files
+
+This note contains project planning details for the AI Personal Search Engine.
+It includes backend indexing, FAISS vector search, OCR support, and a React UI.
+
+Milestones:
+- Collect documents, images, and PDFs
+- Generate semantic embeddings
+- Store vectors with metadata
+- Search everything with natural language
+

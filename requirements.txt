@@ -1,0 +1,22 @@
+fastapi
+uvicorn[standard]
+pydantic-settings
+python-multipart
+
+# AI and vector search dependencies for upcoming implementation steps.
+sentence-transformers
+open_clip_torch
+torch
+faiss-cpu
+Pillow
+numpy
+pypdf
+pytesseract
+PyMuPDF
+
+# Real-time indexing support for later steps.
+watchdog
+
+# Development and API test tooling.
+pytest
+httpx
