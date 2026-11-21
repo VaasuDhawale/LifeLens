@@ -4,6 +4,8 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Iterable
 
+import regex
+
 import numpy as np
 
 from models.clusters import ClusterFile, ClusterResponse, FileCluster
@@ -46,9 +48,9 @@ class SimilarityClusteringService:
         max_clusters: int | None = None,
     ) -> ClusterResponse:
         """Build file clusters from text/OCR and image embedding indexes."""
-        threshold = similarity_threshold or self.config.similarity_threshold
-        min_size = min_cluster_size or self.config.min_cluster_size
-        limit = max_clusters or self.config.max_clusters
+        threshold = similarity_threshold if similarity_threshold is not None else self.config.similarity_threshold
+        min_size = min_cluster_size if min_cluster_size is not None else self.config.min_cluster_size
+        limit = max_clusters if max_clusters is not None else self.config.max_clusters
 
         if not 0 < threshold <= 1:
             raise ValueError("similarity_threshold must be between 0 and 1.")
@@ -284,8 +286,9 @@ STOP_WORDS = {
 
 
 def _tokenize(value: str) -> list[str]:
+    """Tokenize a value into words, supporting Unicode scripts for multilingual filenames."""
     return [
         token
-        for token in re.split(r"[^a-zA-Z0-9]+", value.lower())
+        for token in regex.findall(r"[\p{L}\p{N}]+", value.lower(), regex.UNICODE)
         if len(token) > 2 and not token.isdigit()
     ]

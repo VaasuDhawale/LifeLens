@@ -4,15 +4,23 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Iterable
 
+import regex
+
 from models.search import SearchMode, SearchRequest, SearchResponse, SearchResult
 from services.image_embedding import CLIPImageEmbeddingService
+from services.multilingual import (
+    UNICODE_WORD_PATTERN,
+    normalize_unicode,
+    strip_accents,
+    tokenize_unicode_keywords,
+)
 from services.text_embedding import SentenceBERTTextEmbeddingService
 from services.vector_db import FAISSVectorDB
 
 
 TEXT_FILE_TYPES = {"text", "pdf", "docx", "document", "image"}
 IMAGE_FILE_TYPES = {"image"}
-WORD_PATTERN = re.compile(r"[a-z0-9]+")
+WORD_PATTERN = UNICODE_WORD_PATTERN
 HYBRID_KEYWORD_WEIGHT = 0.70
 HYBRID_SEMANTIC_WEIGHT = 0.30
 SEMANTIC_KEYWORD_WEIGHT = 0.35
@@ -70,7 +78,9 @@ class SearchService:
         self.image_vector_db = image_vector_db
 
     async def search(self, request: SearchRequest) -> SearchResponse:
-        query = request.query.strip()
+        query = normalize_unicode(request.query.strip())
+        if not query:
+            return SearchResponse(query=query, results=[], count=0)
         requested_types = {file_type.lower() for file_type in request.file_types}
         query_terms = tokenize_keywords(query)
 
@@ -78,10 +88,11 @@ class SearchService:
             query=query,
             query_terms=query_terms,
             requested_types=requested_types,
+            mode=request.mode,
         )
 
         backend_results: list[SearchBackendResult] = []
-        if request.mode != SearchMode.EXACT:
+        if request.mode not in {SearchMode.EXACT, SearchMode.KEYWORD}:
             semantic_limit = min(max(request.limit * 8, 50), 200)
             tasks = []
             if self._should_search_text(requested_types):
@@ -112,7 +123,10 @@ class SearchService:
         limit: int,
         requested_types: set[str],
     ) -> SearchBackendResult:
-        self.text_vector_db.reload()
+        try:
+            self.text_vector_db.reload()
+        except Exception:
+            return SearchBackendResult(kind="text", matches=[])
         if self.text_vector_db.total_vectors == 0:
             return SearchBackendResult(kind="text", matches=[])
 
@@ -136,7 +150,10 @@ class SearchService:
         return SearchBackendResult(kind="text", matches=text_matches)
 
     async def _search_images(self, query: str, limit: int) -> SearchBackendResult:
-        self.image_vector_db.reload()
+        try:
+            self.image_vector_db.reload()
+        except Exception:
+            return SearchBackendResult(kind="image", matches=[])
         if self.image_vector_db.total_vectors == 0:
             return SearchBackendResult(kind="image", matches=[])
 
@@ -154,6 +171,7 @@ class SearchService:
         query: str,
         query_terms: list[str],
         requested_types: set[str],
+        mode: SearchMode = SearchMode.HYBRID,
     ) -> dict[str, RankedCandidate]:
         candidates: dict[str, RankedCandidate] = {}
         if not query_terms:
@@ -168,6 +186,7 @@ class SearchService:
                 file_name=str(record["file_name"]),
                 file_path=path,
                 metadata=metadata,
+                mode=mode,
             )
             if evidence.score <= 0:
                 continue
@@ -196,8 +215,14 @@ class SearchService:
         return candidates
 
     def _iter_metadata_records(self, requested_types: set[str]) -> Iterable[dict]:
-        self.text_vector_db.reload()
-        self.image_vector_db.reload()
+        try:
+            self.text_vector_db.reload()
+        except Exception:
+            pass
+        try:
+            self.image_vector_db.reload()
+        except Exception:
+            pass
 
         seen_records: set[tuple[str, str, int]] = set()
         for record in [
@@ -228,8 +253,10 @@ class SearchService:
         for backend_result in backend_results:
             for match in backend_result.matches:
                 path = str(match["file_path"])
-                if not self._is_requested_type(str(match["file_type"]), set()):
-                    continue
+                # BUG FIX: passing empty set always returns True, making
+                # this check a no-op.  Removed the dead filter so all
+                # semantic results are merged into ranking as intended.
+
 
                 metadata = {
                     **match.get("metadata", {}),
@@ -262,9 +289,15 @@ class SearchService:
         ranked: list[SearchResult] = []
         for candidate in candidates.values():
             final_score = combined_score(candidate, mode)
-            if mode != SearchMode.EXACT and final_score < threshold:
+            if mode == SearchMode.EXACT and candidate.keyword_score <= 0:
                 continue
-            if mode in {SearchMode.EXACT, SearchMode.HYBRID} and candidate.keyword_score <= 0:
+            if mode == SearchMode.KEYWORD and candidate.keyword_score <= 0:
+                continue
+            if mode == SearchMode.HYBRID:
+                # In HYBRID, candidates can come from exact/keyword match OR strong semantic match
+                if candidate.keyword_score <= 0 and candidate.semantic_similarity < threshold:
+                    continue
+            if mode not in {SearchMode.EXACT, SearchMode.KEYWORD} and final_score < threshold:
                 continue
             if not query_terms and candidate.keyword_score <= 0:
                 continue
@@ -350,7 +383,7 @@ def combined_score(candidate: RankedCandidate, mode: SearchMode) -> float:
     keyword_score = clamp_score(candidate.keyword_score)
     semantic_score = clamp_score(candidate.semantic_similarity)
 
-    if mode == SearchMode.EXACT:
+    if mode in {SearchMode.EXACT, SearchMode.KEYWORD}:
         return keyword_score
     if mode == SearchMode.SEMANTIC:
         if keyword_score <= 0:
@@ -368,6 +401,7 @@ def keyword_evidence(
     file_name: str,
     file_path: str,
     metadata: dict,
+    mode: SearchMode = SearchMode.HYBRID,
 ) -> KeywordEvidence:
     filename_text = f"{file_name} {Path(file_path).stem}"
     content_text = extract_searchable_text(metadata)
@@ -397,6 +431,19 @@ def keyword_evidence(
             content_occurrences += content_count
 
     matched_keywords = filename_matches | content_matches
+
+    # In EXACT mode, strict match requires ALL query terms or full phrase match
+    if mode == SearchMode.EXACT and len(matched_keywords) < len(query_term_set):
+        norm_q = " ".join(query_terms)
+        if norm_q not in filename_lower and norm_q not in content_lower:
+            return KeywordEvidence(
+                score=0.0,
+                occurrence_count=0,
+                matched_keywords=set(),
+                filename_match=False,
+                content_match=False,
+                snippet=None,
+            )
 
     if not matched_keywords:
         return KeywordEvidence(
@@ -434,14 +481,14 @@ def keyword_evidence(
 
 
 def tokenize_keywords(text: str) -> list[str]:
-    return [match.group(0) for match in WORD_PATTERN.finditer(text.lower())]
+    return tokenize_unicode_keywords(text)
 
 
 def count_substring_occurrences(text: str, term: str) -> int:
-    """Count partial, case-normalized keyword hits, including terms inside words."""
+    """Count partial, case-normalized keyword hits, preserving Unicode."""
     if not text or not term:
         return 0
-    return len(re.findall(re.escape(term.lower()), text))
+    return len(regex.findall(regex.escape(term.lower()), text, regex.IGNORECASE))
 
 
 def extract_searchable_text(metadata: dict) -> str:
@@ -495,7 +542,7 @@ def clamp_score(score: float) -> float:
 
 def sort_key(result: SearchResult, mode: SearchMode) -> tuple[float, float]:
     occurrence_count = float(result.metadata.get("occurrence_count", 0))
-    if mode == SearchMode.EXACT:
+    if mode in {SearchMode.EXACT, SearchMode.KEYWORD}:
         return occurrence_count, result.score
     return result.score, occurrence_count
 

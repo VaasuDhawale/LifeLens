@@ -2,6 +2,16 @@
 
 LifeLens AI is a local-first, AI-powered personal search engine for finding documents, notes, PDFs, images, screenshots, and files with natural language. It combines keyword-first ranking, OCR, text extraction, CLIP image embeddings, Sentence-BERT text embeddings, and FAISS vector search behind a premium React interface.
 
+## 📸 Screenshots
+
+<div align="center">
+  <img src="docs/assets/screenshot_home.png" alt="LifeLens AI Dashboard & Memory Core" width="850" />
+  <p><em>LifeLens AI — Intelligent Local Search & 3D Memory Core</em></p>
+  <br />
+  <img src="docs/assets/screenshot_search.png" alt="LifeLens Search Results & Preview Panel" width="850" />
+  <p><em>Multimodal Hybrid Search with Instant Document Preview and Relevance Explanations</em></p>
+</div>
+
 ## Overview
 
 Modern personal files are scattered across folders, formats, screenshots, PDFs, notes, and project archives. LifeLens AI indexes that digital workspace locally and lets users search it with queries such as:
@@ -85,8 +95,8 @@ See [PROJECT_ARCHITECTURE.md](PROJECT_ARCHITECTURE.md) for a deeper technical br
 ### 1. Clone the repository
 
 ```bash
-git clone https://github.com/your-username/lifelens-ai.git
-cd lifelens-ai
+git clone https://github.com/VaasuDhawale/LifeLens.git
+cd LifeLens
 ```
 
 ### 2. Create a backend environment

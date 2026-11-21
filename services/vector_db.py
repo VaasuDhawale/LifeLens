@@ -196,11 +196,11 @@ class FAISSVectorDB:
 
         self.index_dir.mkdir(parents=True, exist_ok=True)
 
-        temp_index_path = self.index_path.with_suffix(".faiss.tmp")
+        temp_index_path = self.index_path.with_suffix(".tmp")
         faiss.write_index(self._index, str(temp_index_path))
         temp_index_path.replace(self.index_path)
 
-        temp_metadata_path = self.metadata_path.with_suffix(".json.tmp")
+        temp_metadata_path = self.metadata_path.with_suffix(".tmp")
         temp_metadata_path.write_text(
             json.dumps(self._metadata, indent=2, default=str),
             encoding="utf-8",

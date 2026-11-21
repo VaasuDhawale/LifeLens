@@ -18,6 +18,12 @@ const MODE_PLACEHOLDERS: Record<SearchMode, string[]> = {
     "AI project files",
     "invoice march 2026",
   ],
+  keyword: [
+    "DAX",
+    "Power BI",
+    "ऑक्टोबर",
+    "Hinglish",
+  ],
   hybrid: PLACEHOLDERS,
   semantic: [
     "photos from a beach vacation",
@@ -85,6 +91,11 @@ const SEARCH_MODES: Array<{ id: SearchMode; label: string; description: string }
     id: "exact",
     label: "Exact",
     description: "Only ranks literal filename and extracted content matches.",
+  },
+  {
+    id: "keyword",
+    label: "Keyword",
+    description: "Unicode-aware tokenized keyword search with script preservation.",
   },
   {
     id: "hybrid",
@@ -407,7 +418,7 @@ export const SearchBar = memo(function SearchBar({
             </p>
           </div>
           <div
-            className="relative inline-grid grid-cols-3 rounded-lg border border-white/10 bg-black/25 p-1"
+            className="relative inline-grid grid-cols-4 rounded-lg border border-white/10 bg-black/25 p-1"
             role="group"
             aria-label="Search ranking mode"
           >
@@ -646,6 +657,9 @@ function dedupeSuggestions(
 function getModeReason(mode: SearchMode) {
   if (mode === "exact") {
     return "Prioritizes literal filename and content matches";
+  }
+  if (mode === "keyword") {
+    return "Unicode-aware tokenized keyword search with script preservation";
   }
   if (mode === "semantic") {
     return "Expands meaning across indexed embeddings";

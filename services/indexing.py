@@ -12,6 +12,12 @@ from xml.etree import ElementTree
 
 from models.indexing import IndexPathRequest, IndexingState, IndexingStatusResponse
 from services.image_embedding import CLIPImageEmbeddingService, ImageEmbeddingError
+from services.multilingual import (
+    UNICODE_WORD_PATTERN,
+    get_language_metadata,
+    normalize_unicode,
+    tokenize_unicode_keywords,
+)
 from services.ocr import OCRExtractionError, OCRService
 from services.text_embedding import SentenceBERTTextEmbeddingService, TextEmbeddingError
 from services.vector_db import FAISSVectorDB, VectorDBError
@@ -92,7 +98,7 @@ TEXT_EXTENSIONS = {
 
 PDF_EXTENSIONS = {".pdf"}
 DOCX_EXTENSIONS = {".docx"}
-WORD_PATTERN = re.compile(r"[a-z0-9]+")
+WORD_PATTERN = UNICODE_WORD_PATTERN
 
 
 class FileIndexingService:
@@ -310,6 +316,7 @@ class FileIndexingService:
     ) -> int:
         full_text = normalize_extracted_text(text)
         embedding = self.text_embedding_service.embed_text(self._truncate_text(full_text))
+        lang_meta = get_language_metadata(full_text)
         return self.text_vector_db.add_vector(
             embedding=embedding,
             file_path=file_path,
@@ -323,6 +330,7 @@ class FileIndexingService:
                 "text_preview": full_text[:500],
                 "content_char_count": len(full_text),
                 "embedding_char_count": len(self._truncate_text(full_text)),
+                **lang_meta,
             },
         )
 
@@ -498,7 +506,8 @@ def extract_docx_xml_text(xml_bytes: bytes) -> str:
 
 
 def normalize_extracted_text(text: str) -> str:
-    """Normalize extracted content while preserving full searchable text."""
+    """Normalize extracted content while preserving full searchable text and Unicode NFC."""
+    text = normalize_unicode(text)
     lines = [re.sub(r"[ \t]+", " ", line).strip() for line in text.splitlines()]
     compacted_lines: list[str] = []
     previous_blank = False
@@ -515,4 +524,4 @@ def normalize_extracted_text(text: str) -> str:
 
 def tokenize_keywords(text: str) -> list[str]:
     """Extract normalized keyword tokens for exact-match ranking metadata."""
-    return [match.group(0) for match in WORD_PATTERN.finditer(text.lower())]
+    return tokenize_unicode_keywords(text)

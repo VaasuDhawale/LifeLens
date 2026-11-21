@@ -27,11 +27,20 @@ const DEFAULT_THRESHOLD = 0.45;
 const DEFAULT_MODE: SearchMode = "hybrid";
 
 export function useSearch(debounceMs = 320): SearchState {
-  const [currentQuery, setCurrentQuery] = useState("");
+  const initialParams = useMemo(() => {
+    if (typeof window === "undefined") return { q: "", mode: DEFAULT_MODE, threshold: DEFAULT_THRESHOLD };
+    const params = new URLSearchParams(window.location.search);
+    const q = params.get("q") || "";
+    const m = (params.get("mode") as SearchMode) || DEFAULT_MODE;
+    const t = params.get("threshold") ? parseFloat(params.get("threshold")!) : DEFAULT_THRESHOLD;
+    return { q, mode: m, threshold: t };
+  }, []);
+
+  const [currentQuery, setCurrentQuery] = useState(initialParams.q);
   const debouncedQuery = useDebouncedValue(currentQuery, debounceMs);
-  const [threshold, setThresholdState] = useState(DEFAULT_THRESHOLD);
+  const [threshold, setThresholdState] = useState(initialParams.threshold);
   const debouncedThreshold = useDebouncedValue(threshold, 180);
-  const [mode, setModeState] = useState<SearchMode>(DEFAULT_MODE);
+  const [mode, setModeState] = useState<SearchMode>(initialParams.mode);
   const [results, setResults] = useState<SearchResult[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);

@@ -84,10 +84,20 @@ class SentenceBERTTextEmbeddingService:
         if self._model is None:
             with self._load_lock:
                 if self._model is None:
-                    self._model = SentenceTransformer(
-                        self.config.model_name,
-                        device=self.config.device,
-                    )
+                    import os
+                    os.environ.setdefault("HF_HUB_OFFLINE", "1")
+                    os.environ.setdefault("TRANSFORMERS_OFFLINE", "1")
+                    try:
+                        self._model = SentenceTransformer(
+                            self.config.model_name,
+                            device=self.config.device,
+                            local_files_only=True,
+                        )
+                    except Exception:
+                        self._model = SentenceTransformer(
+                            self.config.model_name,
+                            device=self.config.device,
+                        )
 
         assert self._model is not None
         return self._model
@@ -96,9 +106,5 @@ class SentenceBERTTextEmbeddingService:
         normalized_text = text.strip()
         if not normalized_text:
             raise ValueError("Text query must not be empty.")
-        if len(normalized_text) > self.config.max_chars:
-            raise ValueError(
-                f"Text query exceeds the {self.config.max_chars} character limit."
-            )
-        return normalized_text
+        return normalized_text[:self.config.max_chars]
 

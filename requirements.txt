@@ -3,6 +3,9 @@ uvicorn[standard]
 pydantic-settings
 python-multipart
 
+# Unicode-aware tokenization (used by multilingual search).
+regex
+
 # AI and vector search dependencies for upcoming implementation steps.
 sentence-transformers
 open_clip_torch

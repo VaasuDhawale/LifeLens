@@ -44,9 +44,6 @@ def create_app() -> FastAPI:
     application.include_router(indexing.router, prefix=settings.api_prefix)
     application.include_router(files.router, prefix=settings.api_prefix)
     application.include_router(clusters.router, prefix=settings.api_prefix)
-    application.include_router(search.router)
-    application.include_router(files.router)
-    application.include_router(clusters.router)
 
     return application
 

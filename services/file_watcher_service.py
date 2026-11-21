@@ -100,21 +100,38 @@ class FileWatcherService:
             self._observer = Observer()
             event_handler = _NewFileEventHandler(self)
 
-            for directory in directories:
-                self._observer.schedule(
-                    event_handler,
-                    str(directory),
-                    recursive=self.config.recursive,
-                )
+            try:
+                for directory in directories:
+                    try:
+                        self._observer.schedule(
+                            event_handler,
+                            str(directory),
+                            recursive=self.config.recursive,
+                        )
+                    except Exception as exc:
+                        self._last_error = f"Cannot watch directory {directory}: {exc}"
 
-            self._worker_thread = Thread(
-                target=self._process_queue,
-                name="file-indexing-worker",
-                daemon=True,
-            )
-            self._worker_thread.start()
-            self._observer.start()
-            self._running = True
+                self._worker_thread = Thread(
+                    target=self._process_queue,
+                    name="file-indexing-worker",
+                    daemon=True,
+                )
+                self._worker_thread.start()
+                self._observer.start()
+                self._running = True
+            except Exception as exc:
+                self._last_error = f"Observer failed to start: {exc}"
+                self._running = False
+                self._stop_event.set()
+                if self._observer is not None:
+                    try:
+                        self._observer.stop()
+                    except Exception:
+                        pass
+                    self._observer = None
+                if self._worker_thread is not None:
+                    self._worker_thread.join(timeout=self.config.stop_timeout_seconds)
+                    self._worker_thread = None
 
     def stop_sync(self) -> None:
         """Synchronous stop method for scripts and tests."""

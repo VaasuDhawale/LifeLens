@@ -592,7 +592,7 @@ function getEmptySuggestions({
   }
 
   const suffixes =
-    mode === "exact"
+    mode === "exact" || mode === "keyword"
       ? ["notes", "PDF", "formulas", "report"]
       : ["PDFs", "screenshots", "project files", "notes"];
 

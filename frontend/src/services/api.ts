@@ -36,7 +36,7 @@ export type MatchExplanation = {
   summary: string;
 };
 
-export type SearchMode = "exact" | "hybrid" | "semantic";
+export type SearchMode = "exact" | "keyword" | "hybrid" | "semantic";
 
 export type HealthResponse = {
   status: string;

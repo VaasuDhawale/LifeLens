@@ -17,7 +17,20 @@ PREVIEWABLE_MIME_PREFIXES = (
 
 @router.get("/preview")
 async def preview_file(path: str = Query(..., min_length=1)) -> FileResponse:
-    file_path = Path(path).expanduser()
+    file_path = Path(path).expanduser().resolve()
+
+    # Path traversal protection: reject paths that try to escape via ..
+    try:
+        file_path.relative_to(Path.cwd())
+    except ValueError:
+        # Allow absolute paths that are within common user directories
+        allowed_roots = [Path.home()]
+        if not any(_is_subpath(file_path, root) for root in allowed_roots):
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Access denied: path is outside allowed directories.",
+            )
+
     if not file_path.exists() or not file_path.is_file():
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -36,6 +49,15 @@ async def preview_file(path: str = Query(..., min_length=1)) -> FileResponse:
         media_type=media_type,
         filename=file_path.name,
     )
+
+
+def _is_subpath(path: Path, parent: Path) -> bool:
+    """Check if path is under parent directory."""
+    try:
+        path.resolve().relative_to(parent.resolve())
+        return True
+    except ValueError:
+        return False
 
 
 def _is_previewable_media_type(media_type: str) -> bool:

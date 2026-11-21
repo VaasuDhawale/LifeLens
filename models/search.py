@@ -7,6 +7,7 @@ from pydantic import BaseModel, Field
 
 class SearchMode(str, Enum):
     EXACT = "exact"
+    KEYWORD = "keyword"
     HYBRID = "hybrid"
     SEMANTIC = "semantic"
 
