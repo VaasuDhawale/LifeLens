@@ -248,4 +248,6 @@ Suggested screenshots:
 
 ## License
 
-This project is released under the MIT License. See [LICENSE](LICENSE) for details.
+Copyright (c) 2026 Vaasu Dhawale. All Rights Reserved.
+
+This project is proprietary and confidential. Unauthorized copying, modification, distribution, or commercial use of this software, via any medium, is strictly prohibited without prior written permission. See [LICENSE](LICENSE) for details.
