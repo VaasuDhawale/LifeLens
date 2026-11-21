@@ -246,8 +246,13 @@ Suggested screenshots:
 - Add automated frontend and backend test suites.
 - Add packaged desktop builds.
 
-## License
+## ⚖️ License, Copyright & Commercial Terms
 
-Copyright (c) 2026 Vaasu Dhawale. All Rights Reserved.
+**Copyright (c) 2026 Vaasu Dhawale. All Rights Reserved.**
 
-This project is proprietary and confidential. Unauthorized copying, modification, distribution, or commercial use of this software, via any medium, is strictly prohibited without prior written permission. See [LICENSE](LICENSE) for details.
+> **⚠️ COMMERCIAL / PAID SOFTWARE:**
+> LifeLens AI is **not free or open-source software**. All copyrights, architectural patents, and intellectual property rights are exclusively owned by **Vaasu Dhawale**.
+> 
+> Any party wishing to run, deploy, integrate, distribute, or commercially use this software must obtain an official commercial license and pay the required licensing fees. Unauthorized use, copying, or hosting is strictly prohibited.
+> 
+> For licensing inquiries, pricing, or custom deployment permissions, please contact the author via [GitHub Profile](https://github.com/VaasuDhawale). See [LICENSE](LICENSE) for full legal terms.

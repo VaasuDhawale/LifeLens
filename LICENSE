@@ -1,11 +1,59 @@
+COMMERCIAL SOFTWARE LICENSE, COPYRIGHT & PATENT NOTICE
+
 Copyright (c) 2026 Vaasu Dhawale. All Rights Reserved.
 
-PROPRIETARY AND CONFIDENTIAL
+==============================================================================
+NOTICE: THIS IS NOT FREE OR OPEN-SOURCE SOFTWARE. 
+ANY USE, RUNNING, DEPLOYMENT, OR INTEGRATION REQUIRES A PAID COMMERCIAL LICENSE.
+==============================================================================
 
-This software, its source code, documentation, architecture, and associated assets are the proprietary and confidential property of Vaasu Dhawale.
+1. INTELLECTUAL PROPERTY, COPYRIGHT & PATENT NOTICE
+--------------------------------------------------
+This software, including but not limited to its source code, algorithms, 
+multimodal indexing architecture, hybrid ranking mechanisms, user interfaces, 
+documentation, and intellectual property, is the exclusive proprietary property 
+of Vaasu Dhawale ("Licensor"). All copyrights, trade secrets, trademarks, and 
+patent rights (including patent-pending concepts and architectural designs) are 
+strictly reserved.
 
-Permission is strictly denied to any person or organization to copy, use, modify, merge, publish, distribute, sublicense, sell, reverse engineer, or create derivative works of this software, or any portion thereof, without the prior express written authorization of the copyright holder.
+2. COMMERCIAL PAID LICENSE REQUIREMENT
+--------------------------------------
+No person, entity, or organization is granted permission to use, run, execute, 
+copy, distribute, deploy, host, sell, sublicense, or integrate this software 
+or any portion thereof FREE OF CHARGE.
 
-All intellectual property rights remain solely with the author.
+To legally use, run, or deploy LifeLens AI—whether for personal, educational, 
+research, internal business, or commercial purposes—you MUST purchase an official 
+commercial license and pay the applicable licensing fees directly to the Licensor 
+(Vaasu Dhawale).
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, AND NONINFRINGEMENT. IN NO EVENT SHALL THE COPYRIGHT HOLDER BE LIABLE FOR ANY CLAIM, DAMAGES, OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT, OR OTHERWISE, ARISING FROM, OUT OF, OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+3. PROHIBITED ACTS
+------------------
+Without an executed paid commercial agreement signed by Vaasu Dhawale, you CANNOT:
+  a. Run or execute the software in production, personal, or staging environments.
+  b. Distribute, re-license, sell, lease, rent, or transfer copies of this software.
+  c. Bundle, embed, or integrate any part of this software into any product or service.
+  d. Reverse engineer, decompile, or extract the underlying models or algorithms.
+  e. Claim authorship or ownership of the software or any derivative works.
+
+4. INFRINGEMENT & PENALTIES
+---------------------------
+Any unauthorized execution, duplication, or deployment of this software without 
+payment and an active license constitutes intentional copyright infringement, 
+patent infringement, and misappropriation of proprietary technology, and will be 
+prosecuted to the maximum extent permitted by applicable civil and criminal laws.
+
+5. COMMERCIAL LICENSING & INQUIRIES
+-----------------------------------
+To inquire about pricing, terms, evaluation licenses, or to purchase a valid 
+commercial license for LifeLens AI, please contact:
+
+   Licensor / Author: Vaasu Dhawale
+   GitHub: https://github.com/VaasuDhawale
+   Repository: https://github.com/VaasuDhawale/LifeLens
+
+==============================================================================
+DISCLAIMER:
+THE SOFTWARE IS PROVIDED "AS IS" TO AUTHORIZED LICENSEES WITHOUT WARRANTY OF ANY 
+KIND, EXPRESS OR IMPLIED. UNDER NO CIRCUMSTANCES SHALL VAASU DHAWALE BE LIABLE 
+FOR ANY DAMAGES ARISING OUT OF THE USE OR INABILITY TO USE THIS SOFTWARE.
