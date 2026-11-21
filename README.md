@@ -2,6 +2,16 @@
 
 LifeLens AI is a local-first, AI-powered personal search engine for finding documents, notes, PDFs, images, screenshots, and files with natural language. It combines keyword-first ranking, OCR, text extraction, CLIP image embeddings, Sentence-BERT text embeddings, and FAISS vector search behind a premium React interface.
 
+## 🎬 Working Demo & Walkthrough
+
+<div align="center">
+  <img src="docs/assets/demo_walkthrough.gif" alt="LifeLens AI Working Walkthrough" width="900" />
+  <p><em>Live Walkthrough: Querying local documents, 4 search modes (Hybrid, Keyword, Exact, Semantic), and instant relevance scoring</em></p>
+  <p>
+    <a href="docs/assets/demo_walkthrough.mp4"><strong>▶️ Download HD MP4 Walkthrough Video</strong></a>
+  </p>
+</div>
+
 ## 📸 Screenshots
 
 <div align="center">
